@@ -5,6 +5,7 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Olvidar usuario"
+        android:onClick="forgetUser"
         app:showAsAction="never" />
 </menu>

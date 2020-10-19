@@ -14,6 +14,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
 
+    SharedPreferencesManager sharedPreferencesManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        sharedPreferencesManager = new SharedPreferencesManager(this);
+        if(sharedPreferencesManager.isUserSaved()){
+            Intent intent = new Intent(this, ShowCalendarActivity.class);
+            startActivity(intent);
+        }
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,5 +65,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void forgetUser(MenuItem item) {
+        SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(getApplicationContext());
+        sharedPreferencesManager.forgetUser();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+
     }
 }
