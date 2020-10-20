@@ -3,13 +3,16 @@ package com.mgplo.ringostart;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -19,8 +22,11 @@ public class ShowCalendarActivity extends AppCompatActivity {
 
     SharedPreferencesManager sharedPreferencesManager;
     TextView tvTitleStart, tvStartDate, tvFinishDate, tvTitleFinish, tvRemainingDays;
+    ProgressBar progressBar;
     private LocalDate startDate, finishDate;
     private int dayOfMonth, month, year;
+    private long durationDays;
+    private long noOfDaysBetween;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -30,19 +36,19 @@ public class ShowCalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_show_calendar);
 //        Toolbar toolbar = findViewById(R.id.toolbar);
 
+        progressBar = findViewById(R.id.progressBar);
+        FloatingActionButton fab = findViewById(R.id.fab_delete);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteCalendar();
+            }
+        });
+
         sharedPreferencesManager = new SharedPreferencesManager(this);
         dayOfMonth = sharedPreferencesManager.obtainSavedDay();
         month = sharedPreferencesManager.obtainSavedMonth();
         year = sharedPreferencesManager.obtainSavedYear();
-//        if (!sharedPreferencesManager.isUserSaved()) {
-//            Intent intent = getIntent();
-//            dayOfMonth = intent.getIntExtra(AddCalendarActivity.EXTRA_DAY_OF_MONTH, 0);
-//            month = intent.getIntExtra(AddCalendarActivity.EXTRA_MONTH, 0);
-//            year = intent.getIntExtra(AddCalendarActivity.EXTRA_YEAR, 0);
-//
-//        } else {
-
-
 
         tvTitleStart = findViewById(R.id.tv_start_title);
         tvStartDate = findViewById(R.id.tv_start_date);
@@ -58,7 +64,7 @@ public class ShowCalendarActivity extends AppCompatActivity {
 
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu");
         //Cycle duration is 21 days
-        int durationDays = 21;
+         durationDays = 21;
 
         startDate = LocalDate.of(year, month, day);
         finishDate = startDate.plusDays(durationDays);
@@ -67,12 +73,14 @@ public class ShowCalendarActivity extends AppCompatActivity {
         tvRemainingDays = findViewById(R.id.tv_remaining_days);
 
         //Days between from today until Cycle finish
-        long noOfDaysBetween = ChronoUnit.DAYS.between(LocalDate.now(), finishDate);
+         noOfDaysBetween = ChronoUnit.DAYS.between(LocalDate.now(), finishDate);
+
         if (noOfDaysBetween < 0) {
             Toast.makeText(this, "El Ciclo ya ha Terminado!!!", Toast.LENGTH_LONG).show();
             tvRemainingDays.setText("0");
         } else {
             tvRemainingDays.setText(String.valueOf(noOfDaysBetween));
+            calculateProgress();
         }
 
 
@@ -80,6 +88,19 @@ public class ShowCalendarActivity extends AppCompatActivity {
         tvFinishDate = findViewById(R.id.tv_finish_date);
         tvFinishDate.setText(formattedDate);
 
+
+    }
+
+    private void calculateProgress() {
+        progressBar.setProgress(50);
+    }
+
+    public void deleteCalendar() {
+        SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(getApplicationContext());
+        sharedPreferencesManager.forgetUser();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
 
     }
 
